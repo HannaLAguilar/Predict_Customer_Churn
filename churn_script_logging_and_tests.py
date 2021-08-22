@@ -1,4 +1,5 @@
 """
+This module is used for testing churn_library_solution.py and save logs
 
 Author: Hanna L.A.
 Date: August 2021

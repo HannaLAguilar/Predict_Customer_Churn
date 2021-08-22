@@ -1,5 +1,5 @@
 """This module have all the function to implement a machine learning models
-in order to predict if a customer will churn
+in order to predict if a customer will churn the bank
 
 Author: Hanna L.A.
 Date: August 2021
@@ -29,6 +29,7 @@ MODEL_PATH = './models'
 def import_data(pth: str) -> pd.DataFrame:
     """
     Takes a path and return a pandas dataframe
+
     :param pth: path to the csv
     :return: pandas dataframe
     """
@@ -50,6 +51,7 @@ def check_null_values(df: pd.DataFrame) -> pd.Series:
 def add_churn(df: pd.DataFrame) -> pd.DataFrame:
     """
     Create Churn column in function of Attrition_Flag column
+
     :param df: pandas dataframe
     :return: pandas dataframe with Churn column as categorical variable
     """
@@ -61,6 +63,7 @@ def add_churn(df: pd.DataFrame) -> pd.DataFrame:
 def perform_eda(df: pd.DataFrame):
     """
     Perform eda on a dataframe and save figures to images folder
+
     :param df: pandas dataframe
     :return: None
     """
@@ -94,11 +97,13 @@ def perform_eda(df: pd.DataFrame):
     plt.savefig(Path(IMAGE_EDA_PATH, 'heatmap.png'))
 
 
-def encoder_helper(df: pd.DataFrame, category_lst: list,
+def encoder_helper(df: pd.DataFrame,
+                   category_lst: list,
                    response: str) -> pd.DataFrame:
     """
-    helper function to turn each categorical column into a new column with
+    Helper function to turn each categorical column into a new column with
     proportion of churn for each categorical
+
     :param df: pandas dataframe
     :param category_lst: columns that contain categorical features
     :param response: response name [optional argument
@@ -113,18 +118,20 @@ def encoder_helper(df: pd.DataFrame, category_lst: list,
     return df
 
 
-def perform_feature_engineering(df: pd.DataFrame, response: str) -> \
+def perform_feature_engineering(df: pd.DataFrame,
+                                response: str) -> \
         Tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
     """
-    Split the data into train and test datasets
+    Set X and y and split them into train and test datasets
+
     :param df: pandas dataframe
-    :param response: response name [optional
-    argument that could be used for naming variables or index y column]
+    :param response: response name [optional argument that could be used
+    for naming variables or index y column]
     :return:
-    X_train: X training data
-    X_test: X testing data
-    y_train: y training data
-    y_test: y testing data
+        X_train: X training data
+        X_test: X testing data
+        y_train: y training data
+        y_test: y testing data
     """
     # features
     keep_cols = df.select_dtypes(exclude=['O']).columns.drop(
@@ -145,6 +152,7 @@ def plot_roc_curve_and_save(rfc_model,
     """
     Use plot_roc_curve to create and save the roc curves for logistic regression
     and random forest model
+
     :param rfc_model: random forest model
     :param lrc_model: logistic regression model
     :param X_test: X testing data
@@ -158,9 +166,13 @@ def plot_roc_curve_and_save(rfc_model,
     plt.savefig(Path(IMAGE_RESULT_PATH, 'roc_curve_result.png'))
 
 
-def train_models(X_train, X_test, y_train, y_test):
+def train_models(X_train: pd.DataFrame,
+                 X_test: pd.DataFrame,
+                 y_train: pd.Series,
+                 y_test: pd.Series):
     """
-    train and store model results: images + scores, and save models
+    Train and store model results: images + scores, and save models
+
     :param X_train: X training data
     :param X_test: X testing data
     :param y_train: y training data
@@ -192,7 +204,8 @@ def train_models(X_train, X_test, y_train, y_test):
 
 def load_models():
     """
-    Load a model previously training in pickle
+    Load a model previously training
+
     :return: random forest model and logistic regression model
     """
     rfc_model = joblib.load('./models/rfc_model.pkl')
@@ -233,7 +246,7 @@ def plot_classification_report(y_train: pd.Series,
     :param y_train_pred: training predictions data
     :param y_test_pred:  testing predictions data
     :param title: the name of model
-    :return: None
+    :return: figure
     """
     fig = plt.figure(figsize=(6, 5))
     fig.add_subplot(1, 1, 1)
@@ -261,6 +274,7 @@ def classification_report_image(y_train: pd.Series,
     """
     Produces classification report for training and testing results and
     stores report as image in images folder
+
     :param y_train: training response values
     :param y_test: test response values
     :param y_train_pred_lr: training predictions from logistic regression
@@ -280,7 +294,9 @@ def classification_report_image(y_train: pd.Series,
     fig_rf.savefig(Path(IMAGE_RESULT_PATH, 'rf_results.png'))
 
 
-def feature_importance_plot(model, X_data, output_pth):
+def feature_importance_plot(model,
+                            X_data: pd.DataFrame,
+                            output_pth: str):
     """
     Creates and stores the features importance in output path
 
