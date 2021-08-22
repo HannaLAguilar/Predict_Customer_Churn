@@ -219,13 +219,18 @@ def test_prediction(X_train: pd.DataFrame,
                     rfc_model) -> Tuple[np.ndarray, np.ndarray,
                                         np.ndarray, np.ndarray]:
     """
+    Predictions for each model for the train and test datasets
+
     :param X_train: X training data
     :param X_test: X testing data
     :param lrc_model: logistic regression model
     :param rfc_model: random forest model
     :return:
+        y_train_pred_lr: training predictions data for lrc_model
+        y_test_pred_lr: testing predictions data for lrc_model
+        y_training_pred_rf: training predictions data for rf_model
+        y_testing_pred_rf: testing predictions data for rf_model
     """
-
     y_train_pred_lr = lrc_model.predict(X_train)
     y_test_pred_lr = lrc_model.predict(X_test)
     y_train_pred_rf = rfc_model.predict(X_train)
@@ -298,7 +303,7 @@ def feature_importance_plot(model,
                             X_data: pd.DataFrame,
                             output_pth: str):
     """
-    Creates and stores the features importance in output path
+    Creates and stores the features importance in output_path
 
     :param model: model object containing feature_importances_
     :param X_data: pandas dataframe of X values
