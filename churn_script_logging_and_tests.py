@@ -1,3 +1,9 @@
+"""
+
+Author: Hanna
+Date: August 2021
+"""
+
 from pathlib import Path
 import logging
 import pandas as pd
@@ -16,7 +22,7 @@ def test_import():
     test import_data
     """
     try:
-        df = cls.import_data('./data/bank_data.csv')
+        df = cls.import_data('./data/bank_data.csv')  # pylint: disable=C0103
         logging.info('Testing import_data: SUCCESS')
     except FileNotFoundError as err:
         logging.error('Testing import_data: The file was not found')
@@ -26,7 +32,8 @@ def test_import():
         assert df.shape[1] > 0
     except AssertionError as err:
         logging.error(
-            'Testing import_data: The file does not appear to have rows and columns')
+            'Testing import_data: The file does not appear to have rows and '
+            'columns')
         raise err
 
 
@@ -61,11 +68,12 @@ def test_add_churn():
 def test_eda():
     """
     test perform_eda
-    :return:
     """
     try:
         assert Path(cls.IMAGE_EDA_PATH, 'churn_distribution.png').is_file()
-        assert Path(cls.IMAGE_EDA_PATH, 'customer_age_distribution.png').is_file()
+        assert Path(
+            cls.IMAGE_EDA_PATH,
+            'customer_age_distribution.png').is_file()
         assert Path(
             cls.IMAGE_EDA_PATH,
             'marital_status_distribution.png').is_file()
@@ -81,7 +89,6 @@ def test_eda():
 def test_encoder_helper():
     """
     test encoder_helper
-    :return:
     """
     try:
         df = cls.import_data('data/bank_data.csv')
@@ -94,7 +101,7 @@ def test_encoder_helper():
                     ]
         response = 'Churn'
         df = cls.encoder_helper(df, cat_list, response)
-        assert set([name + '_' + response for name in cat_list]
+        assert set(name + '_' + response for name in cat_list
                    ).issubset(df.columns)
         logging.info('Testing encoder_helper: SUCCESS')
     except KeyError as err:
@@ -106,7 +113,8 @@ def test_encoder_helper():
         assert df[[name + '_' + response for name in cat_list]].shape[1] > 0
     except AssertionError as err:
         logging.error(
-            'Testing encoder_helper: The dataframe does not appear to have rows and columns')
+            'Testing encoder_helper: The dataframe does not appear to have '
+            'rows and columns')
         raise err
 
 
@@ -135,7 +143,8 @@ def test_perform_feature_engineering():
             'Testing perform_feature_engineering: SUCCESS type feature')
     except AssertionError as err:
         logging.error(
-            'Testing perform_feature_engineering: There is problem with get some feature')
+            'Testing perform_feature_engineering: There is problem with get '
+            'some feature')
         raise err
     try:
         assert X_train.shape[0] > 0
@@ -148,11 +157,15 @@ def test_perform_feature_engineering():
             'Testing perform_feature_engineering: SUCCESS shape feature')
     except AssertionError as err:
         logging.error(
-            'Testing perform_feature_engineering: The dataframe does not appear to have the right rows and columns')
+            'Testing perform_feature_engineering: The dataframe does not '
+            'appear to have the right rows and columns')
         raise err
 
 
 def test_train_models():
+    """
+    test train_models
+    """
     try:
         assert Path('./models/logistic_model.pkl').is_file()
         assert Path('./models/rfc_model.pkl').is_file()

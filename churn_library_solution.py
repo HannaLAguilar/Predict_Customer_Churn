@@ -1,30 +1,25 @@
-"""
-In thi module are all the function to implement a machine learning models in order
-to predict is a client will churn or not
+"""This module have all the function to implement a machine learning models
+in order to predict if a customer will churn
 
 Author: Hanna L.A.
 Date: August 2021
 """
+from pathlib import Path
+from typing import Tuple
 from sklearn.metrics import plot_roc_curve, classification_report
 from sklearn.model_selection import GridSearchCV
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import normalize
-from typing import Tuple
-import logging
 
-import pandas.core.series
-import shap
 import joblib
-from pathlib import Path
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+import shap
 
 sns.set()
-
 
 IMAGE_EDA_PATH = './images/eda'
 IMAGE_RESULT_PATH = './images/results'
@@ -33,7 +28,7 @@ MODEL_PATH = './models'
 
 def import_data(pth: str) -> pd.DataFrame:
     """
-    takes a path and return a pandas dataframe
+    Takes a path and return a pandas dataframe
     :param pth: path to the csv
     :return: pandas dataframe
     """
@@ -41,8 +36,10 @@ def import_data(pth: str) -> pd.DataFrame:
     return df
 
 
-def check_null_values(df: pd.DataFrame) -> pandas.core.series.Series:
+def check_null_values(df: pd.DataFrame) -> pd.Series:
     """
+    Takes a dataframe and return a pd.series with the resume of null values
+    for each column
 
     :param df: pandas dataframe
     :return: a pandas.Series with all the columns and the total null values
@@ -51,6 +48,11 @@ def check_null_values(df: pd.DataFrame) -> pandas.core.series.Series:
 
 
 def add_churn(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Create Churn column in function of Attrition_Flag column
+    :param df: pandas dataframe
+    :return: pandas dataframe with Churn column as categorical variable
+    """
     df['Churn'] = df['Attrition_Flag'].apply(
         lambda x: 0 if x == 'Existing Customer' else 1)
     return df
@@ -58,7 +60,7 @@ def add_churn(df: pd.DataFrame) -> pd.DataFrame:
 
 def perform_eda(df: pd.DataFrame):
     """
-    perform eda on a dataframe and save figures to images folder
+    Perform eda on a dataframe and save figures to images folder
     :param df: pandas dataframe
     :return: None
     """
@@ -97,10 +99,10 @@ def encoder_helper(df: pd.DataFrame, category_lst: list,
     """
     helper function to turn each categorical column into a new column with
     proportion of churn for each categorical
-
     :param df: pandas dataframe
     :param category_lst: columns that contain categorical features
-    :param response: response name [optional argument that could be used for naming variables or index y column]
+    :param response: response name [optional argument
+    that could be used for naming variables or index y column]
     :return: pandas dataframe with new columns
     """
     for categorical in category_lst:
@@ -111,18 +113,18 @@ def encoder_helper(df: pd.DataFrame, category_lst: list,
     return df
 
 
-def perform_feature_engineering(df: pd.DataFrame, response: str) -> Tuple[
-        pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
+def perform_feature_engineering(df: pd.DataFrame, response: str) -> \
+        Tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
     """
-
+    Split the data into train and test datasets
     :param df: pandas dataframe
-    :param response: response name [optional argument that could be used for naming variables or index y column]
+    :param response: response name [optional
+    argument that could be used for naming variables or index y column]
     :return:
-              X_train: X training data
-              X_test: X testing data
-              y_train: y training data
-              y_test: y testing data
-
+    X_train: X training data
+    X_test: X testing data
+    y_train: y training data
+    y_test: y testing data
     """
     # features
     keep_cols = df.select_dtypes(exclude=['O']).columns.drop(
@@ -134,6 +136,26 @@ def perform_feature_engineering(df: pd.DataFrame, response: str) -> Tuple[
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3,
                                                         random_state=42)
     return X_train, X_test, y_train, y_test
+
+
+def plot_roc_curve_and_save(rfc_model,
+                            lrc_model,
+                            X_test: pd.DataFrame,
+                            y_test: pd.Series):
+    """
+    Use plot_roc_curve to create and save the roc curves for logistic regression
+    and random forest model
+    :param rfc_model: random forest model
+    :param lrc_model: logistic regression model
+    :param X_test: X testing data
+    :param y_test: y testing data
+    :return: None
+    """
+    plt.figure(figsize=(15, 8))
+    ax = plt.gca()
+    plot_roc_curve(rfc_model, X_test, y_test, ax=ax, alpha=0.8)
+    plot_roc_curve(lrc_model, X_test, y_test, ax=ax)
+    plt.savefig(Path(IMAGE_RESULT_PATH, 'roc_curve_result.png'))
 
 
 def train_models(X_train, X_test, y_train, y_test):
@@ -160,23 +182,22 @@ def train_models(X_train, X_test, y_train, y_test):
     cv_rfc = GridSearchCV(estimator=rfc, param_grid=param_grid, cv=5)
     cv_rfc.fit(X_train, y_train)
 
+    # roc curve
+    plot_roc_curve_and_save(cv_rfc, lrc, X_test, y_test)
+
     # save models
     joblib.dump(cv_rfc.best_estimator_, './models/rfc_model.pkl')
     joblib.dump(lrc, './models/logistic_model.pkl')
 
 
 def load_models():
+    """
+    Load a model previously training in pickle
+    :return: random forest model and logistic regression model
+    """
     rfc_model = joblib.load('./models/rfc_model.pkl')
     lrc_model = joblib.load('./models/logistic_model.pkl')
     return lrc_model, rfc_model
-
-
-def plot_roc_curve_and_save(rfc_model, lrc_model, X_test, y_test):
-    plt.figure(figsize=(15, 8))
-    ax = plt.gca()
-    plot_roc_curve(rfc_model, X_test, y_test, ax=ax, alpha=0.8)
-    plot_roc_curve(lrc_model, X_test, y_test, ax=ax)
-    plt.savefig(Path(IMAGE_RESULT_PATH, 'roc_curve_result.png'))
 
 
 def test_prediction(X_train: pd.DataFrame,
@@ -184,6 +205,13 @@ def test_prediction(X_train: pd.DataFrame,
                     lrc_model,
                     rfc_model) -> Tuple[np.ndarray, np.ndarray,
                                         np.ndarray, np.ndarray]:
+    """
+    :param X_train: X training data
+    :param X_test: X testing data
+    :param lrc_model: logistic regression model
+    :param rfc_model: random forest model
+    :return:
+    """
 
     y_train_pred_lr = lrc_model.predict(X_train)
     y_test_pred_lr = lrc_model.predict(X_test)
@@ -196,7 +224,17 @@ def plot_classification_report(y_train: pd.Series,
                                y_test: pd.Series,
                                y_train_pred: np.ndarray,
                                y_test_pred: np.ndarray,
-                               title):
+                               title: str):
+    """
+    Transform the classification_report into a image and save it
+
+    :param y_train: y training data
+    :param y_test: y testing data
+    :param y_train_pred: training predictions data
+    :param y_test_pred:  testing predictions data
+    :param title: the name of model
+    :return: None
+    """
     fig = plt.figure(figsize=(6, 5))
     fig.add_subplot(1, 1, 1)
     plt.text(0.01, 1.25, title + ' Train', {'fontsize': 10},
@@ -221,13 +259,13 @@ def classification_report_image(y_train: pd.Series,
                                 y_test_pred_lr: np.ndarray,
                                 y_test_pred_rf: np.ndarray):
     """
-    produces classification report for training and testing results and stores report as image
-    in images folder
+    Produces classification report for training and testing results and
+    stores report as image in images folder
     :param y_train: training response values
     :param y_test: test response values
     :param y_train_pred_lr: training predictions from logistic regression
     :param y_train_pred_rf: training predictions from random forest
-    :param y_test_pred_lr:  test predictions from random forest
+    :param y_test_pred_lr: test predictions from random forest
     :param y_test_pred_rf: test predictions from random forest
     :return: None
     """
@@ -244,23 +282,23 @@ def classification_report_image(y_train: pd.Series,
 
 def feature_importance_plot(model, X_data, output_pth):
     """
-    creates and stores the feature importances in output path
+    Creates and stores the features importance in output path
 
-    :param model: model object containing feature_importances
+    :param model: model object containing feature_importances_
     :param X_data: pandas dataframe of X values
     :param output_pth: path to store the figure
     :return: None
     """
-    # calculate feature importances
-    importances = model.feature_importances_
-    # sort feature importances in descending order
-    indices = np.argsort(importances)[::-1]
-    # rearrange feature names so they match the sorted feature importances
+    # calculate features importance
+    importance = model.feature_importances_
+    # sort features importance in descending order
+    indices = np.argsort(importance)[::-1]
+    # rearrange feature names so they match the sorted features importance
     names = [X_data.columns[i] for i in indices]
 
     # plot
     plt.figure(figsize=(20, 5))
-    plt.bar(range(X_data.shape[1]), importances[indices])
+    plt.bar(range(X_data.shape[1]), importance[indices])
     plt.title("Feature Importance")
     plt.ylabel('Importance')
     plt.xticks(range(X_data.shape[1]), names, rotation=90)
@@ -277,6 +315,10 @@ def feature_importance_plot(model, X_data, output_pth):
 
 
 def main():
+    """
+    Pipeline of all the functions to complete the project
+    :return: None
+    """
     # data
     df = import_data('data/bank_data.csv')
     df = add_churn(df)
@@ -305,8 +347,14 @@ def main():
     plot_roc_curve_and_save(rfc_model, lrc_model, X_test, y_test)
 
     # plots
-    y_train_pred_lr, y_train_pred_rf, y_test_pred_lr, y_test_pred_rf = test_prediction(X_train, X_test, lrc_model, rfc_model)
-    classification_report_image(y_train, y_test, y_train_pred_lr, y_train_pred_rf, y_test_pred_lr, y_test_pred_rf)
+    y_train_pred_lr, y_train_pred_rf, y_test_pred_lr, y_test_pred_rf = \
+        test_prediction(X_train, X_test, lrc_model, rfc_model)
+    classification_report_image(y_train,
+                                y_test,
+                                y_train_pred_lr,
+                                y_train_pred_rf,
+                                y_test_pred_lr,
+                                y_test_pred_rf)
     feature_importance_plot(rfc_model, X_test, IMAGE_RESULT_PATH)
 
 
