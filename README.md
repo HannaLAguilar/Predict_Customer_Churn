@@ -1,7 +1,7 @@
 # Predict Customer Churn
 
-This is a project for the Machine Learning DevOps Engineer 
-Nanodegree from Udacity.
+This is a project for the [Machine Learning DevOps Engineer 
+Nanodegree](https://github.com/HannaLAguilar/MLOps_Udacity) from Udacity.
 
 ## Project Overview
 In this project two machine learning 
@@ -38,4 +38,4 @@ With python >= 3.7
   ```
   ipython churn_script_logging_adn_test.py
   ```
-  You can also use pytest to perform the testing.
+  You can also use pytest to perform the testing
