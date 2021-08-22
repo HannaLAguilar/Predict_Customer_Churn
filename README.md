@@ -17,7 +17,7 @@ For test and debugging purposes a test file
 functions embedded. 
 
 ## Running Files
-With python => 3.7 
+With python >= 3.7 
 - Create an environment and activate it
   ```
   conda create -n churn_ml python=3.7 pandas matplotlib seaborn shap 
