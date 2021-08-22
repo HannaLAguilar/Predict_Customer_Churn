@@ -1,0 +1,8 @@
+root - INFO - Testing import_data: SUCCESS 
+root - INFO - Testing check_null_values: SUCCESS 
+root - INFO - Testing add_churn: SUCCESS 
+root - INFO - Testing perform_eda: SUCCESS 
+root - INFO - Testing encoder_helper: SUCCESS 
+root - INFO - Testing perform_feature_engineering: SUCCESS type feature 
+root - INFO - Testing perform_feature_engineering: SUCCESS shape feature 
+root - INFO - Testing train_model: SUCCESS 

@@ -160,13 +160,6 @@ def train_models(X_train, X_test, y_train, y_test):
     cv_rfc = GridSearchCV(estimator=rfc, param_grid=param_grid, cv=5)
     cv_rfc.fit(X_train, y_train)
 
-    # figure roc_curve
-    plt.figure(figsize=(15, 8))
-    ax = plt.gca()
-    plot_roc_curve(cv_rfc, X_test, y_test, ax=ax, alpha=0.8)
-    plot_roc_curve(lrc, X_test, y_test, ax=ax)
-    plt.savefig(Path(IMAGE_RESULT_PATH, 'roc_curve_result.png'))
-
     # save models
     joblib.dump(cv_rfc.best_estimator_, './models/rfc_model.pkl')
     joblib.dump(lrc, './models/logistic_model.pkl')
@@ -178,9 +171,19 @@ def load_models():
     return lrc_model, rfc_model
 
 
-def test_prediction(X_train: pd.DataFrame, X_test: pd.DataFrame,
-                    lrc_model, rfc_model) -> Tuple[
-        np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+def plot_roc_curve_and_save(rfc_model, lrc_model, X_test, y_test):
+    plt.figure(figsize=(15, 8))
+    ax = plt.gca()
+    plot_roc_curve(rfc_model, X_test, y_test, ax=ax, alpha=0.8)
+    plot_roc_curve(lrc_model, X_test, y_test, ax=ax)
+    plt.savefig(Path(IMAGE_RESULT_PATH, 'roc_curve_result.png'))
+
+
+def test_prediction(X_train: pd.DataFrame,
+                    X_test: pd.DataFrame,
+                    lrc_model,
+                    rfc_model) -> Tuple[np.ndarray, np.ndarray,
+                                        np.ndarray, np.ndarray]:
 
     y_train_pred_lr = lrc_model.predict(X_train)
     y_test_pred_lr = lrc_model.predict(X_test)
@@ -286,6 +289,9 @@ def main():
     response = 'Churn'
     df = encoder_helper(df, cat_list, response)
 
+    # eda
+    perform_eda(df)
+
     # feature engineering
     X_train, X_test, y_train, y_test = perform_feature_engineering(df, response)
 
@@ -294,6 +300,9 @@ def main():
 
     # models
     lrc_model, rfc_model = load_models()
+
+    # roc curve
+    plot_roc_curve_and_save(rfc_model, lrc_model, X_test, y_test)
 
     # plots
     y_train_pred_lr, y_train_pred_rf, y_test_pred_lr, y_test_pred_rf = test_prediction(X_train, X_test, lrc_model, rfc_model)
