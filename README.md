@@ -6,15 +6,15 @@ Nanodegree from Udacity.
 ## Project Overview
 In this project two machine learning 
 models are training to identify if credit card 
-customers that are most likely to churn the bank.
+customers are most likely to churn the bank.
 
 The file `churn_library_solution.py` contains all the
 functions necessary to train and test the model and save the
-important images of results and EDA.
+important images of the results and EDA.
 
 For test and debugging purposes a test file 
-`churn_script_logging_adn_test.py` was created with logging 
-function embedded. 
+`churn_script_logging_adn_test.py` was created with the logging 
+functions embedded. 
 
 ## Running Files
 With python => 3.7 
