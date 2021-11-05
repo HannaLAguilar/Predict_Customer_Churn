@@ -6,6 +6,8 @@ Date: August 2021
 """
 from pathlib import Path
 from typing import Tuple
+
+import sklearn.linear_model
 from sklearn.metrics import plot_roc_curve, classification_report
 from sklearn.model_selection import GridSearchCV
 from sklearn.ensemble import RandomForestClassifier
@@ -60,7 +62,7 @@ def add_churn(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def perform_eda(df: pd.DataFrame):
+def perform_eda(df: pd.DataFrame) -> None:
     """
     Perform eda on a dataframe and save figures to images folder
 
@@ -145,8 +147,8 @@ def perform_feature_engineering(df: pd.DataFrame,
     return X_train, X_test, y_train, y_test
 
 
-def plot_roc_curve_and_save(rfc_model,
-                            lrc_model,
+def plot_roc_curve_and_save(rfc_model: LogisticRegression,
+                            lrc_model: RandomForestClassifier,
                             X_test: pd.DataFrame,
                             y_test: pd.Series):
     """
@@ -202,7 +204,7 @@ def train_models(X_train: pd.DataFrame,
     joblib.dump(lrc, './models/logistic_model.pkl')
 
 
-def load_models():
+def load_models() -> Tuple[LogisticRegression, RandomForestClassifier]:
     """
     Load a model previously training
 
@@ -215,9 +217,9 @@ def load_models():
 
 def test_prediction(X_train: pd.DataFrame,
                     X_test: pd.DataFrame,
-                    lrc_model,
-                    rfc_model) -> Tuple[np.ndarray, np.ndarray,
-                                        np.ndarray, np.ndarray]:
+                    lrc_model: LogisticRegression,
+                    rfc_model: RandomForestClassifier) -> Tuple[np.ndarray, np.ndarray,
+                                                                np.ndarray, np.ndarray]:
     """
     Predictions for each model for the train and test datasets
 
